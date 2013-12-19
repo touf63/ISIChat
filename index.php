@@ -28,8 +28,6 @@
 		}
     </script>
     
-    
-
 </head>
 
 <body>
@@ -63,7 +61,7 @@
 		<form action="chat.php" method="post">
 			
 			<!-- nickname -->
-			<p id="your_nickname"><?php echo $labelSurname; ?><input type="text" name="nickname" maxlength="20" /></p>
+			<p id="your_nickname"><?php echo $labelSurname; ?><input type="text" name="nickname" maxlength="20" value="<?php echo $_COOKIE['pseudo'];?>"></p>
 			
 			<br/>
 			
