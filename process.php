@@ -2,7 +2,7 @@
 
 	/*
 	 * \file : process.php
-	 * \brief Server-side engine of the chat
+	 * \brief Server-side AJAX engine of the chat
 	 * \author Christophe TETTARASSAR
 	 * \year 2013
 	*/
@@ -106,6 +106,18 @@
 				
 				$file = fopen('chat.txt', 'a'); // open "chat.txt"
 				$time = date("H:i"); // what time is it ? (hour : minutes)
+				
+				// text formating (opening bbcode)
+				$message = str_replace("[b]", "<b>", $message); 
+				$message = str_replace("[i]", "<em>", $message); 
+				$message = str_replace("[u]", "<u>", $message); 
+				
+				// text formating (closing bbcode)
+				$message = str_replace("[/b]", "</b>", $message); 
+				$message = str_replace("[/i]", "</em>", $message); 
+				$message = str_replace("[/u]", "</u>", $message); 
+				
+				
 				$message = str_replace("\n", "", $message); // remove "\n" of the message
 				
 				// write nickname + date + message on file chat.txt
