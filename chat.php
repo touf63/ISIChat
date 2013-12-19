@@ -20,10 +20,13 @@
     
     <link rel="stylesheet" href="./design/style.css" type="text/css">
     
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    
+	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 	
-    <script type="text/javascript" src="process.js"></script>
+    <script type="text/javascript" src="./process.js"></script>
 	
+	<!-- Sorry for the huge javascript code below, I tried to put it somewhere else, but in vain :/ -->
     <script type="text/javascript">
     
         // get the nickname from index.php form by POST method
@@ -53,6 +56,9 @@
 						session_start(); // start session
 						$_SESSION['name'] = $nickname; // initialize session
 						
+						// KEEP CALM and EAT COOKIE
+						setcookie('pseudo',$nickname, time() + 365*24*3600, null, null, false, true);
+						
 						// creates a file in users directory
 						$session_file = './users/' . $_SESSION['name'];	
 						
@@ -65,6 +71,16 @@
 					back_to_index();
 				}
 			}
+			else {
+				$session_file = './users/' . $_GET['name'];
+				
+				unlink($session_file); // Destruction of user-session's file
+				session_destroy();	// Destruction of session
+				
+				$destIndex = "index.php?logout=true&lang=" . $lang;
+				header("Location: $destIndex"); // Redirection to index.php
+				exit;
+			}
 		?>
 		
 		// PHP --> JS of nickname variable
@@ -76,7 +92,7 @@
         // display to all users that I'm online
         var helloText = "<?php echo $labelHello; ?>";
 		chat.send(helloText, name);	
-		
+			
 		$(function() {
 			
 			// get the state of the chat (by calling the fonction getState of chat)
@@ -123,6 +139,7 @@
     				}			
     			}
             });
+			
     	});
     	
     	//If user wants to end session  
@@ -137,6 +154,65 @@
 					window.location = "chat.php?exit=true&name=<?php echo $_SESSION['name']; ?>&lang=<?php echo $lang; ?>";
 				}        
 			});  
+		});
+		
+		// Special thanks to openclassroom.com for this amazing part of code
+		// Of course I have adapted it in consideration of my own code :)
+		// This function handle the text selection and cursor replacing
+		$(document).ready(function(){ 
+			$(".bbcode").click(function(){  
+				
+				var field  = document.getElementById("toSend"); 
+				var scroll = field.scrollTop;
+				
+				switch (this.value) {
+					// bold
+					case 'b':
+						var startTag = "[b]";
+						var endTag = "[/b]";
+					break;
+					
+					// italic	
+					case 'i':
+						var startTag = "[i]";
+						var endTag = "[/i]";
+					break;
+					
+					// underline
+					case 'u':
+						var startTag = "[u]";
+						var endTag = "[/u]";
+					break;	
+				}
+				
+				
+				field.focus();
+				
+				// Taking care of Internet Explorer
+				if (window.ActiveXObject) { 
+					var textRange = document.selection.createRange();            
+					var currentSelection = textRange.text;
+							
+					textRange.text = startTag + currentSelection + endTag;
+					textRange.moveStart("character", -endTag.length - currentSelection.length);
+					textRange.moveEnd("character", -endTag.length);
+					textRange.select();     
+				} 
+				
+				// For the others
+				else { 
+					var startSelection = field.value.substring(0, field.selectionStart);
+					var currentSelection = field.value.substring(field.selectionStart, field.selectionEnd);
+					var endSelection = field.value.substring(field.selectionEnd);
+							
+					field.value = startSelection + startTag + currentSelection + endTag + endSelection;
+					field.focus();
+					field.setSelectionRange(startSelection.length + startTag.length, startSelection.length + startTag.length + currentSelection.length);
+				} 
+
+				field.scrollTop = scroll;
+				
+			});
 		});
 		
 		<?php
@@ -195,10 +271,20 @@
 			
         <br>
         
-        <form id="send-message-zone">
+        <!-- Text formatting tool, using BBCode -->
+		<span>
+			<button value="b" class="bbcode"><b>B</b></button>
+			<button value="i" class="bbcode"><em>I</em></button>
+			<button value="u" class="bbcode"><u>U</u></button>
+			<br/>
+		</span>
 		
+		<br/>
+        
+        <form id="send-message-zone">
+			
 			<!-- "to Send" message text area -->
-            <textarea id="toSend" maxlength="1000"></textarea>
+            <textarea id="toSend" class="textarea-bbcode" maxlength="1000"></textarea>
 			
         </form>
         
